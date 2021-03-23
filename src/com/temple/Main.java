@@ -7,11 +7,13 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Date;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 
 public class Main {
     public static void main(String args[]) throws IOException {
         int port = 8000;
-
         ServerSocket sSocket = new ServerSocket(port);
         Socket socket = sSocket.accept();
 
@@ -34,7 +36,16 @@ public class Main {
 
         try {
             FileWriter writer = new FileWriter("log.txt");
-            writer.write("Files in Java might be tricky, but it is fun enough!");
+            writer.write(date.toString());
+            writer.write("\n");
+            writer.write("IP address: " + IP + "\n");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            for (String line; (line = reader.readLine()) != null;)
+            {
+                if (line.isEmpty()) break;
+                writer.write(line);
+                writer.write("\n");
+            }
             writer.close();
             System.out.println("Successfully wrote to the file.");
         } catch (IOException e) {
@@ -42,12 +53,12 @@ public class Main {
             e.printStackTrace();
         }
 
-
         out.println("HTTP/1.1 200 OK");
         out.println("Content-Type: text/html");
         out.println("\r\n");
         out.println("<p> Your IP address: </p>" + IP);
         out.println("<p> Current date and time: </p>" + date.toString());
+        out.println("");
         out.flush();
         out.close();
 
